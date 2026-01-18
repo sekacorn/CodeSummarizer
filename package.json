@@ -1,0 +1,39 @@
+{
+  "name": "code-summarizer",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sekacorn/CodeSummarizer.git"
+  },
+  "author": "sekacorn",
+  "homepage": "https://github.com/sekacorn/CodeSummarizer",
+  "bugs": {
+    "url": "https://github.com/sekacorn/CodeSummarizer/issues"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build",
+    "generate-icons": "node create-icon.cjs && tauri icon app-icon.png"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^1.5.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^1.5.9",
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
+    "@vitejs/plugin-react": "^4.2.1",
+    "sharp": "^0.34.5",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.8"
+  }
+}
