@@ -2,7 +2,13 @@
 
 A **local-first, privacy-first** desktop application for analyzing and summarizing code snippets using local AI models. Built with Tauri (Rust) and React (TypeScript).
 
-![Code Summarizer Screenshot](screenshot.jpg)
+## Screenshots
+
+![Code Summarizer - Main Interface](screenshot.jpg)
+
+![Code Summarizer - Analysis View](screenshot-2.jpg)
+
+![Code Summarizer - Risk Scan](screenshot-3.jpg)
 
 ## Why Code Summarizer?
 
