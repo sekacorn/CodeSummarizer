@@ -8,6 +8,16 @@ export const RiskSchema = z.object({
 
 export type Risk = z.infer<typeof RiskSchema>;
 
+// Schema for syntax errors (validate mode)
+export const SyntaxErrorSchema = z.object({
+  line: z.number().int().nullable().optional(),
+  column: z.number().int().nullable().optional(),
+  message: z.string(),
+  severity: z.enum(["error", "warning"]),
+});
+
+export type SyntaxError = z.infer<typeof SyntaxErrorSchema>;
+
 // Main output schema from the model
 export const CodeAnalysisSchema = z.object({
   summary: z.array(z.string()),
@@ -18,6 +28,9 @@ export const CodeAnalysisSchema = z.object({
   risks: z.array(RiskSchema),
   junior_explanation: z.string(),
   confidence: z.number().min(0).max(1),
+  // validate mode fields (optional so other modes still parse)
+  is_valid: z.boolean().optional(),
+  syntax_errors: z.array(SyntaxErrorSchema).optional(),
 });
 
 export type CodeAnalysis = z.infer<typeof CodeAnalysisSchema>;

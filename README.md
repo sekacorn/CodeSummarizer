@@ -16,15 +16,16 @@ A **local-first, privacy-first** desktop application for analyzing and summarizi
 - **Privacy-First**: Your potentially sensitive code never leaves your computer.
 - **Secret Protection**: Automatic detection and optional masking of secrets before processing.
 - **Offline-Capable**: Works entirely offline with a local Ollama instance.
-- **Multiple Analysis Modes**: Get summaries, junior-friendly explanations, or security risk assessments.
+- **Multiple Analysis Modes**: Get summaries, junior-friendly explanations, security risk assessments, or syntax validation.
 
 ## Features
 
-- **Supported Languages**: Java, Python, JavaScript, SQL, Visual Basic, JSON, CSS
+- **Supported Languages**: Java, Python, JavaScript, SQL, VBA, JSON, CSS, DAX
 - **Analysis Modes**:
   - **Summarize**: Get a concise overview with structured breakdown
   - **Explain for Junior**: Beginner-friendly explanations with detailed walkthroughs
   - **Risk Scan**: Security-focused analysis highlighting potential vulnerabilities
+  - **Validate**: Check code for syntax errors and structural issues, with line/column locations
 - **Secret Scanning**: Detects AWS keys, JWT tokens, passwords, API keys, PEM keys, and Bearer tokens
 - **Structured Output**: JSON-validated responses with sections for summary, walkthrough, inputs, outputs, side effects, risks, and confidence scores
 - **Copy Functionality**: Copy any section individually to your clipboard
@@ -119,6 +120,7 @@ The built application will be in `src-tauri/target/release/`.
    - Click **Summarize** for a high-level overview
    - Click **Explain for Junior** for beginner-friendly explanations
    - Click **Risk Scan** for security analysis
+   - Click **Validate** to check for syntax errors (shows line and column numbers)
 8. **Review Results**: The right panel will display structured analysis with copyable sections
 
 ## Troubleshooting

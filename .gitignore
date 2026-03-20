@@ -51,3 +51,12 @@ desktop.ini
 *.tmp
 *.temp
 .cache/
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Vite temp files
+vite.config.ts.timestamp-*
+
+# Claude Code working directory
+.claude/

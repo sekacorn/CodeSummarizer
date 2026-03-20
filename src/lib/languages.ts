@@ -4,9 +4,10 @@ export const SUPPORTED_LANGUAGES = [
   "Python",
   "JavaScript",
   "SQL",
-  "Visual Basic",
+  "VBA",
   "JSON",
   "CSS",
+  "DAX",
 ] as const;
 
 export type SupportedLanguage = typeof SUPPORTED_LANGUAGES[number];
@@ -16,6 +17,7 @@ export const ANALYSIS_MODES = {
   SUMMARIZE: "summarize",
   JUNIOR: "junior",
   RISK: "risk",
+  VALIDATE: "validate",
 } as const;
 
 export type AnalysisMode = typeof ANALYSIS_MODES[keyof typeof ANALYSIS_MODES];

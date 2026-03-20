@@ -7,6 +7,7 @@ const REQUEST_TIMEOUT_SECS: u64 = 120;
 
 /// Lists available models from Ollama
 pub fn list_models() -> Result<Vec<String>, String> {
+    // Short timeout: listing models is a fast metadata call, not an inference request
     let client = Client::builder()
         .timeout(Duration::from_secs(5))
         .build()
@@ -60,7 +61,7 @@ pub fn generate_completion(model: &str, prompt: &str) -> Result<String, String> 
     let request_body = OllamaGenerateRequest {
         model: model.to_string(),
         prompt: prompt.to_string(),
-        stream: false,
+        stream: false, // Wait for the full response rather than streaming tokens back incrementally
     };
 
     let response = client

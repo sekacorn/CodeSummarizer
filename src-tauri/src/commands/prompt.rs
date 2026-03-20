@@ -131,6 +131,64 @@ Output valid JSON only:"#,
                 code = code
             )
         }
+        "validate" => {
+            let validate_schema = r#"{
+  "is_valid": true,
+  "syntax_errors": [
+    {"line": 5, "column": 12, "message": "description of the error", "severity": "error"},
+    {"line": 10, "column": null, "message": "description of the warning", "severity": "warning"}
+  ],
+  "summary": ["bullet point 1"],
+  "walkthrough": [],
+  "inputs": [],
+  "outputs": [],
+  "side_effects": [],
+  "risks": [],
+  "junior_explanation": "Brief explanation of any issues found",
+  "confidence": 0.85
+}"#;
+            format!(
+                r#"{injection_warning}
+
+You are a code validation assistant. Check the following {language} code for syntax errors, type errors, and structural problems.
+
+Output ONLY valid JSON matching this exact schema (no markdown, no extra text):
+{validate_schema}
+
+Guidelines:
+- is_valid: true if no errors found, false if there are any errors
+- syntax_errors: List every error and warning found, each with:
+  - line: The line number where the error occurs (integer, or null if unknown)
+  - column: The column number where the error occurs (integer, or null if unknown)
+  - message: A clear, specific description of the error and how to fix it
+  - severity: "error" for syntax/type errors that prevent execution, "warning" for potential issues
+- summary: 1-3 bullet points summarising the validation result
+- walkthrough: Leave as empty array []
+- inputs/outputs/side_effects/risks: Leave as empty arrays []
+- junior_explanation: If errors exist, explain what went wrong in plain language. If valid, say so.
+- confidence: Your confidence in this validation (0.0 to 1.0)
+
+Focus on:
+- Syntax errors (missing brackets, semicolons, quotes, keywords)
+- Undefined variables or functions
+- Type mismatches
+- Incorrect use of language-specific constructs
+- Structural issues (unclosed blocks, mismatched delimiters)
+
+If the code is valid with no issues, return is_valid: true and an empty syntax_errors array.
+
+{language} code to validate:
+```
+{code}
+```
+
+Output valid JSON only:"#,
+                injection_warning = injection_warning,
+                language = language,
+                validate_schema = validate_schema,
+                code = code
+            )
+        }
         _ => {
             // Default to summarize
             build_prompt(language, "summarize", code)

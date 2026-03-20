@@ -21,7 +21,7 @@ pub fn scan_for_secrets(code: &str) -> SecretScanResult {
         findings.push(SecretFinding {
             kind: "JWT Token".to_string(),
             start: mat.start(),
-            preview: format!("{}...", &mat.as_str()[..20]),
+            preview: format!("{}...", &mat.as_str()[..mat.as_str().len().min(20)]),
         });
     }
 
@@ -69,7 +69,9 @@ pub fn redact_secrets(code: &str, findings: &[SecretFinding]) -> String {
         return code.to_string();
     }
 
-    // Sort findings by start position in reverse order to maintain indices
+    // Sort findings in reverse start order so that each replacement doesn't shift the byte
+    // positions of findings that come earlier in the string. Processing back-to-front means
+    // all previously recorded start indices remain valid after each replace_range call.
     let mut sorted_findings = findings.to_vec();
     sorted_findings.sort_by(|a, b| b.start.cmp(&a.start));
 
@@ -100,7 +102,9 @@ pub fn redact_secrets(code: &str, findings: &[SecretFinding]) -> String {
             // Find the quoted value and redact it
             if let Some(remaining) = redacted.get(start..) {
                 if let Some(quote_start) = remaining.find(|c| c == '"' || c == '\'') {
-                    let quote_char = remaining.chars().nth(quote_start).unwrap();
+                    // quote_start is a byte index; '"' and '\'' are single-byte ASCII,
+                    // so reading the byte directly is safe and avoids char/byte confusion.
+                    let quote_char = remaining.as_bytes()[quote_start] as char;
                     if let Some(value_start) = remaining.get(quote_start + 1..) {
                         if let Some(quote_end) = value_start.find(quote_char) {
                             let actual_start = start + quote_start + 1;
@@ -117,6 +121,7 @@ pub fn redact_secrets(code: &str, findings: &[SecretFinding]) -> String {
             if let Some(remaining) = redacted.get(start..) {
                 if let Some(end_offset) = remaining.find("-----END") {
                     if let Some(final_end) = remaining.get(end_offset..).and_then(|s| s.find("-----")) {
+                        // +5 for the five dashes in "-----" that close the END marker
                         let actual_end = start + end_offset + final_end + 5;
                         if actual_end <= redacted.len() {
                             redacted.replace_range(start..actual_end, "***REDACTED PEM KEY***");
@@ -130,15 +135,19 @@ pub fn redact_secrets(code: &str, findings: &[SecretFinding]) -> String {
                 if let Some(bearer_pos) = remaining.to_lowercase().find("bearer") {
                     let token_start = start + bearer_pos + 6; // "bearer" length
                     if let Some(token_str) = redacted.get(token_start..) {
-                        // Skip whitespace
-                        let ws_offset = token_str.chars().take_while(|c| c.is_whitespace()).count();
+                        // Skip whitespace (sum byte lengths to get correct byte offset)
+                        let ws_offset: usize = token_str.chars()
+                            .take_while(|c| c.is_whitespace())
+                            .map(|c| c.len_utf8())
+                            .sum();
                         let actual_token_start = token_start + ws_offset;
 
-                        // Find end of token
+                        // Find end of token (sum byte lengths, not char count, for correct byte offset)
                         if let Some(rest) = redacted.get(actual_token_start..) {
-                            let token_len = rest.chars()
+                            let token_len: usize = rest.chars()
                                 .take_while(|c| c.is_alphanumeric() || *c == '_' || *c == '-' || *c == '.')
-                                .count();
+                                .map(|c| c.len_utf8())
+                                .sum();
                             if token_len > 0 {
                                 let actual_end = actual_token_start + token_len;
                                 if actual_end <= redacted.len() {

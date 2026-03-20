@@ -53,6 +53,52 @@ export function OutputPanel({ analysis, rawOutput, error }: OutputPanelProps) {
 
   return (
     <div className="output-panel">
+      {/* Validation Results Section (validate mode only) */}
+      {analysis.is_valid !== undefined && (
+        <section className="output-section">
+          <div className="section-header">
+            <h3>Validation Result</h3>
+            <button
+              className="copy-button"
+              onClick={() => {
+                const errors = analysis.syntax_errors ?? [];
+                const text = analysis.is_valid
+                  ? "No errors found — code is valid."
+                  : errors
+                      .map(
+                        (e) =>
+                          `[${e.severity.toUpperCase()}]${e.line != null ? ` Line ${e.line}` : ""}${e.column != null ? `:${e.column}` : ""} — ${e.message}`
+                      )
+                      .join("\n");
+                copyToClipboard(text, "Validation Result");
+              }}
+            >
+              Copy
+            </button>
+          </div>
+          <div
+            className={`validation-status ${analysis.is_valid ? "validation-valid" : "validation-invalid"}`}
+          >
+            {analysis.is_valid ? "Valid — no errors found" : "Invalid — errors detected"}
+          </div>
+          {(analysis.syntax_errors ?? []).length > 0 && (
+            <ul className="syntax-errors-list">
+              {(analysis.syntax_errors ?? []).map((err, index) => (
+                <li key={index} className={`syntax-error-item syntax-error-${err.severity}`}>
+                  <span className="syntax-error-badge">{err.severity}</span>
+                  {err.line != null && (
+                    <span className="syntax-error-location">
+                      Line {err.line}{err.column != null ? `:${err.column}` : ""}
+                    </span>
+                  )}
+                  <span className="syntax-error-message">{err.message}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      )}
+
       {/* Summary Section */}
       <section className="output-section">
         <div className="section-header">

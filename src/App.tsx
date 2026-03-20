@@ -179,6 +179,13 @@ function App() {
               {isProcessing ? "Processing..." : "Risk Scan"}
             </button>
             <button
+              className="action-button primary"
+              onClick={() => handleAnalyze(ANALYSIS_MODES.VALIDATE)}
+              disabled={isProcessing}
+            >
+              {isProcessing ? "Processing..." : "Validate"}
+            </button>
+            <button
               className="action-button secondary"
               onClick={handleClear}
               disabled={isProcessing}
