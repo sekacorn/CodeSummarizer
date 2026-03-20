@@ -168,6 +168,8 @@ pub fn redact_secrets(code: &str, findings: &[SecretFinding]) -> String {
 mod tests {
     use super::*;
 
+    // --- scan_for_secrets ---
+
     #[test]
     fn test_scan_aws_key() {
         let code = "const key = 'AKIAIOSFODNN7EXAMPLE';";
@@ -177,11 +179,120 @@ mod tests {
     }
 
     #[test]
-    fn test_redact_secrets() {
+    fn test_scan_jwt_token() {
+        let code = "token = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIn0.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
+        let result = scan_for_secrets(code);
+        assert_eq!(result.findings.len(), 1);
+        assert_eq!(result.findings[0].kind, "JWT Token");
+    }
+
+    #[test]
+    fn test_scan_password_assignment() {
+        let code = r#"password = "supersecret123""#;
+        let result = scan_for_secrets(code);
+        assert_eq!(result.findings.len(), 1);
+        assert!(result.findings[0].kind.contains("assignment"));
+    }
+
+    #[test]
+    fn test_scan_api_key_assignment() {
+        let code = r#"api_key = "sk-abcdefghijklmnop""#;
+        let result = scan_for_secrets(code);
+        assert_eq!(result.findings.len(), 1);
+        assert!(result.findings[0].kind.contains("assignment"));
+    }
+
+    #[test]
+    fn test_scan_pem_key() {
+        let code = "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBg==\n-----END PRIVATE KEY-----";
+        let result = scan_for_secrets(code);
+        assert_eq!(result.findings.len(), 1);
+        assert_eq!(result.findings[0].kind, "PEM Private Key");
+    }
+
+    #[test]
+    fn test_scan_bearer_token() {
+        let code = "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9abcdefgh";
+        let result = scan_for_secrets(code);
+        assert_eq!(result.findings.len(), 1);
+        assert_eq!(result.findings[0].kind, "Bearer Token");
+    }
+
+    #[test]
+    fn test_scan_no_secrets() {
+        let code = "fn main() { println!(\"Hello, world!\"); }";
+        let result = scan_for_secrets(code);
+        assert!(result.findings.is_empty());
+    }
+
+    #[test]
+    fn test_scan_multiple_secrets() {
+        let code = "key = AKIAIOSFODNN7EXAMPLE\npassword = \"hunter2secret\"";
+        let result = scan_for_secrets(code);
+        assert!(result.findings.len() >= 2);
+    }
+
+    // --- redact_secrets ---
+
+    #[test]
+    fn test_redact_aws_key() {
         let code = "const key = 'AKIAIOSFODNN7EXAMPLE';";
         let scan_result = scan_for_secrets(code);
         let redacted = redact_secrets(code, &scan_result.findings);
         assert!(redacted.contains("***REDACTED***"));
+        assert!(!redacted.contains("AKIAIOSFODNN7EXAMPLE"));
+    }
+
+    #[test]
+    fn test_redact_jwt_token() {
+        let code = "token = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1c2VyIn0.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
+        let scan_result = scan_for_secrets(code);
+        let redacted = redact_secrets(code, &scan_result.findings);
+        assert!(redacted.contains("***REDACTED***"));
+        assert!(!redacted.contains("eyJhbGciOiJIUzI1NiJ9"));
+    }
+
+    #[test]
+    fn test_redact_password_assignment() {
+        let code = r#"password = "supersecret123""#;
+        let scan_result = scan_for_secrets(code);
+        let redacted = redact_secrets(code, &scan_result.findings);
+        assert!(redacted.contains("***REDACTED***"));
+        assert!(!redacted.contains("supersecret123"));
+    }
+
+    #[test]
+    fn test_redact_pem_key() {
+        let code = "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBg==\n-----END PRIVATE KEY-----";
+        let scan_result = scan_for_secrets(code);
+        let redacted = redact_secrets(code, &scan_result.findings);
+        assert!(redacted.contains("***REDACTED PEM KEY***"));
+        assert!(!redacted.contains("MIIEvQIBADANBg=="));
+    }
+
+    #[test]
+    fn test_redact_bearer_token() {
+        let code = "Authorization: Bearer mysecrettoken12345678901234567890";
+        let scan_result = scan_for_secrets(code);
+        let redacted = redact_secrets(code, &scan_result.findings);
+        assert!(redacted.contains("***REDACTED***"));
+        assert!(!redacted.contains("mysecrettoken12345678901234567890"));
+    }
+
+    #[test]
+    fn test_redact_empty_findings() {
+        let code = "fn main() {}";
+        let redacted = redact_secrets(code, &[]);
+        assert_eq!(redacted, code);
+    }
+
+    #[test]
+    fn test_redact_preserves_surrounding_code() {
+        let code = "let x = 1;\nlet key = 'AKIAIOSFODNN7EXAMPLE';\nlet y = 2;";
+        let scan_result = scan_for_secrets(code);
+        let redacted = redact_secrets(code, &scan_result.findings);
+        assert!(redacted.contains("let x = 1;"));
+        assert!(redacted.contains("let y = 2;"));
         assert!(!redacted.contains("AKIAIOSFODNN7EXAMPLE"));
     }
 }

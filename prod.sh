@@ -37,6 +37,11 @@ if [ $? -eq 0 ]; then
     if [[ "$OSTYPE" == "darwin"* ]]; then
         echo "macOS app bundle:"
         echo "  src-tauri/target/release/bundle/macos/"
+    elif [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" || "$OSTYPE" == "win32" ]]; then
+        echo "Windows executable:"
+        echo "  src-tauri/target/release/code-summarizer.exe"
+        echo "Windows installer (MSI):"
+        echo "  src-tauri/target/release/bundle/msi/"
     elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
         echo "Linux executable:"
         echo "  src-tauri/target/release/code-summarizer"

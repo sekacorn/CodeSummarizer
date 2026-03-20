@@ -76,13 +76,18 @@ ollama list
 git clone https://github.com/sekacorn/CodeSummarizer.git
 cd CodeSummarizer
 
-# Install frontend dependencies
+# Run the setup script (checks prerequisites, installs deps, generates icons, runs tests)
+# Windows:
+setup.bat
+# macOS/Linux:
+chmod +x setup.sh && ./setup.sh
+```
+
+Or if you prefer to do it manually:
+
+```bash
 npm install
-
-# Generate app icons (first-time setup only)
 npm run generate-icons
-
-# The Rust dependencies will be handled by Tauri automatically
 ```
 
 **Note:** If icons are missing, you can regenerate them anytime with `npm run generate-icons`.
