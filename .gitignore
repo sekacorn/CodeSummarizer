@@ -58,5 +58,4 @@ desktop.ini
 # Vite temp files
 vite.config.ts.timestamp-*
 
-# Claude Code working directory
-.claude/
+
