@@ -8,6 +8,8 @@ export const SUPPORTED_LANGUAGES = [
   "JSON",
   "CSS",
   "DAX",
+  "C",
+  "C++",
 ] as const;
 
 export type SupportedLanguage = typeof SUPPORTED_LANGUAGES[number];
