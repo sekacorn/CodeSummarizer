@@ -317,7 +317,8 @@ Add regex patterns in `src-tauri/src/commands/secrets.rs` in the `scan_for_secre
 
 ## License
 
-This project is provided as-is for local use. Modify and distribute as needed.
+This project is licensed under the GNU General Public License v3.0 or later
+(GPL-3.0-or-later). See the [LICENSE](LICENSE) file for details.
 
 ## Contributing
 

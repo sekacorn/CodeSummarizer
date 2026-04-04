@@ -8,6 +8,7 @@
     "url": "https://github.com/sekacorn/CodeSummarizer.git"
   },
   "author": "sekacorn",
+  "license": "GPL-3.0-or-later",
   "homepage": "https://github.com/sekacorn/CodeSummarizer",
   "bugs": {
     "url": "https://github.com/sekacorn/CodeSummarizer/issues"

@@ -3,7 +3,7 @@ name = "code-summarizer"
 version = "0.1.0"
 description = "A local-first code summarization tool"
 authors = ["sekacorn"]
-license = ""
+license = "GPL-3.0-or-later"
 repository = "https://github.com/sekacorn/CodeSummarizer"
 edition = "2021"
 
