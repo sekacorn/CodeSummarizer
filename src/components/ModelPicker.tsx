@@ -1,5 +1,3 @@
-import React from "react";
-
 interface ModelPickerProps {
   models: string[];
   selectedModel: string;

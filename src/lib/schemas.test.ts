@@ -123,6 +123,13 @@ describe("SUPPORTED_LANGUAGES", () => {
     expect(SUPPORTED_LANGUAGES).toContain("DAX");
     expect(SUPPORTED_LANGUAGES).toContain("JavaScript");
     expect(SUPPORTED_LANGUAGES).toContain("Python");
+    expect(SUPPORTED_LANGUAGES).toContain("C");
+    expect(SUPPORTED_LANGUAGES).toContain("C++");
+    expect(SUPPORTED_LANGUAGES).toContain("C#");
+    expect(SUPPORTED_LANGUAGES).toContain("Assembly");
+    expect(SUPPORTED_LANGUAGES).toContain("Fortran");
+    expect(SUPPORTED_LANGUAGES).toContain("COBOL");
+    expect(SUPPORTED_LANGUAGES).toContain("BASH");
   });
 
   it("does not contain the old Visual Basic name", () => {

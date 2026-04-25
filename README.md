@@ -1,6 +1,6 @@
 # Code Summarizer
 
-A **local-first, privacy-first** desktop application for analyzing and summarizing code snippets using local AI models. Built with Tauri (Rust) and React (TypeScript).
+A **local-first, privacy-first, offline-capable** desktop application for analyzing code snippets with local AI models. It is built for developers who need help understanding code without sending source material to the internet, especially junior developers working in sensitive environments where cloud tools are not allowed. Built with Tauri (Rust) and React (TypeScript).
 
 ## Screenshots
 
@@ -10,25 +10,88 @@ A **local-first, privacy-first** desktop application for analyzing and summarizi
 
 ![Code Summarizer - Risk Scan](screenshot-3.jpg)
 
+## The Problem It Solves
+
+Many developers, especially junior developers, run into situations where they need fast answers about code but cannot safely paste that code into an online AI tool, forum, or third-party website.
+
+This becomes even more important in **government, regulated, classified-adjacent, or otherwise sensitive work** where:
+
+- Code may contain confidential business logic, internal architecture, or protected data patterns
+- Internet access may be restricted or discouraged
+- Approved tooling must run locally
+- Senior developers are not always immediately available to explain unfamiliar code or review a tricky snippet
+
+Code Summarizer is designed for exactly that gap:
+
+- You need help understanding code
+- You need that help **now**
+- You cannot rely on cloud-based developer assistants
+- You still want a reliable, structured answer without exposing sensitive material
+
+This project came out of a real need: needing support on an assignment when experienced developers were unavailable, while still needing to respect privacy and environment constraints.
+
+## Selling Points
+
+- **100% Local**: All processing happens on your machine. No cloud calls, no external AI APIs.
+- **Privacy-First by Design**: Your potentially sensitive code stays on your computer.
+- **Built for Sensitive Workflows**: Useful for government, enterprise, regulated, or air-gapped style environments.
+- **Junior Developer Friendly**: Explains code in plain language when you need guidance and no senior developer is available.
+- **Secret Protection**: Automatically detects and can mask secrets before sending code to the local model.
+- **Offline-Capable**: Works without internet access once Ollama and your models are installed locally.
+- **Multiple Analysis Modes**: Get summaries, junior-friendly explanations, security risk assessments, or syntax validation.
+- **Desktop App, Not a Browser Dependency**: A focused local application rather than a web service that requires trust in external infrastructure.
+
 ## Why Code Summarizer?
 
-- **100% Local**: All processing happens on your machine. No cloud calls, no internet required.
-- **Privacy-First**: Your potentially sensitive code never leaves your computer.
-- **Secret Protection**: Automatic detection and optional masking of secrets before processing.
-- **Offline-Capable**: Works entirely offline with a local Ollama instance.
-- **Multiple Analysis Modes**: Get summaries, junior-friendly explanations, security risk assessments, or syntax validation.
+- **Acts like a local coding assistant** for moments when you need an explanation, a sanity check, or a quick risk review
+- **Safer for sensitive code** than cloud-based chat tools
+- **Helpful for onboarding and self-unblocking** when teammates are unavailable
+- **Structured outputs** make it easier to review, copy, and share sanitized findings internally
+- **Simple local setup** with Ollama keeps the stack understandable and auditable
 
 ## Features
 
-- **Supported Languages**: Java, Python, JavaScript, SQL, VBA, JSON, CSS, DAX
+- **Supported Languages for Analysis**: Java, Python, JavaScript, SQL, VBA, JSON, CSS, DAX, C, C++, C#, Assembly, Fortran, COBOL, BASH
 - **Analysis Modes**:
   - **Summarize**: Get a concise overview with structured breakdown
   - **Explain for Junior**: Beginner-friendly explanations with detailed walkthroughs
   - **Risk Scan**: Security-focused analysis highlighting potential vulnerabilities
-  - **Validate**: Check code for syntax errors and structural issues, with line/column locations
+  - **Validate**: LLM-based validation that checks for likely syntax errors and structural issues, with line/column locations when the model can infer them
 - **Secret Scanning**: Detects AWS keys, JWT tokens, passwords, API keys, PEM keys, and Bearer tokens
 - **Structured Output**: JSON-validated responses with sections for summary, walkthrough, inputs, outputs, side effects, risks, and confidence scores
 - **Copy Functionality**: Copy any section individually to your clipboard
+
+### What "Supported" Means
+
+In this project, a supported language means:
+
+- You can select it in the app
+- The selected language is passed into the prompt so the local model analyzes the snippet in that language context
+- You can use all four analysis modes with it: Summarize, Explain for Junior, Risk Scan, and Validate
+
+It does **not** currently mean:
+
+- A dedicated compiler integration
+- A language server integration
+- A formal parser or AST-based validator
+- Guaranteed compiler-accurate syntax checking
+
+The **Validate** feature is currently **model-guided validation**, not a replacement for running a real compiler, interpreter, linter, or assembler for that language.
+
+## Who This Is For
+
+- Junior developers working with unfamiliar codebases
+- Developers in government or security-sensitive environments
+- Teams that cannot use cloud AI tools because of privacy or compliance constraints
+- Engineers who want a local-only assistant for explaining snippets, checking risks, and validating structure
+
+## Typical Use Cases
+
+- Understanding a legacy function when no senior engineer is available
+- Getting a junior-friendly explanation of a code snippet from an internal assignment
+- Reviewing code for obvious risks before asking for formal review
+- Validating syntax or structure before handing work off to a teammate
+- Safely inspecting code that should not leave a protected environment
 
 ## Prerequisites
 
@@ -127,6 +190,15 @@ The built application will be in `src-tauri/target/release/`.
    - Click **Risk Scan** for security analysis
    - Click **Validate** to check for syntax errors (shows line and column numbers)
 8. **Review Results**: The right panel will display structured analysis with copyable sections
+
+### Recommended Workflow for Sensitive Environments
+
+1. Run Ollama locally on the approved machine
+2. Keep **"Mask secrets before sending to model"** enabled
+3. Paste only the code snippet you need help understanding
+4. Start with **Explain for Junior** if you need plain-language guidance
+5. Use **Risk Scan** when reviewing code that may touch authentication, data access, or external systems
+6. Use **Validate** when you need a quick local syntax or structure check
 
 ## Troubleshooting
 
@@ -307,6 +379,8 @@ npm run generate-icons
 
 Edit `src/lib/languages.ts` and add your language to `SUPPORTED_LANGUAGES`.
 
+Because language handling is currently prompt-based, adding a language to the list makes it available for model-driven analysis in the UI. It does not automatically add compiler-aware or parser-aware validation for that language.
+
 ### Customizing Prompts
 
 Modify `src-tauri/src/commands/prompt.rs` to adjust how prompts are constructed for different analysis modes.
@@ -336,6 +410,15 @@ A: No. All processing is 100% local. The app only communicates with Ollama runni
 **Q: Can I use this offline?**
 A: Yes, as long as Ollama and the required models are already installed and running locally.
 
+**Q: Is this meant for junior developers?**
+A: Yes. One of the main goals is to help junior developers understand code safely in environments where asking a cloud AI tool is not an option and a senior developer may not be immediately available.
+
+**Q: Why not just use ChatGPT, Copilot, or another online tool?**
+A: In many sensitive environments, that may not be allowed or appropriate. Code Summarizer is designed for situations where privacy, local execution, and no internet dependency matter more than cloud convenience.
+
+**Q: Is this useful for government or regulated work?**
+A: That is one of the core use cases. If your environment requires local processing, minimal data exposure, and no external API calls, this app is built to fit that workflow.
+
 **Q: What models work best?**
 A: For code analysis:
 - **Best on limited RAM (2-4GB)**: `tinyllama` - Fast but basic analysis
@@ -343,6 +426,9 @@ A: For code analysis:
 - **Best quality (8GB+)**: `codellama` or `mistral` - Most accurate analysis
 
 Choose based on your available system RAM. Models need ~2x their size in memory when running.
+
+**Q: Does "Validate" use real compilers or parsers for each language?**
+A: No. Today, Validate uses the local language model to identify likely syntax, type, and structural issues. It is useful for quick local feedback, but it should not be treated as a substitute for a real compiler, interpreter, linter, shell checker, assembler, or language-specific toolchain.
 
 **Q: Why is the analysis slow?**
 A: LLM inference on CPU can be slow. Consider using a GPU-accelerated setup with Ollama or using smaller models.
@@ -359,4 +445,4 @@ For issues or questions:
 
 ---
 
-**Built with privacy and security in mind. Your code stays on your machine.**
+**Built for developers who need help without giving up privacy. Your code stays on your machine.**

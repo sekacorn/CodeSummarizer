@@ -1,4 +1,3 @@
-import React from "react";
 import type { Risk } from "../lib/schemas";
 
 interface RiskBadgesProps {

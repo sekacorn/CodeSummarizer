@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import type { CodeAnalysis } from "../lib/schemas";
 import { RiskBadges } from "./RiskBadges";
 

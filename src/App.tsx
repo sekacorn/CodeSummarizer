@@ -1,15 +1,19 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { CodeInput } from "./components/CodeInput";
 import { ModelPicker } from "./components/ModelPicker";
 import { OutputPanel } from "./components/OutputPanel";
 import { listOllamaModels, summarizeCode } from "./lib/api";
 import { parseModelOutput, type CodeAnalysis, type SecretFinding } from "./lib/schemas";
-import { SUPPORTED_LANGUAGES, ANALYSIS_MODES } from "./lib/languages";
+import {
+  SUPPORTED_LANGUAGES,
+  ANALYSIS_MODES,
+  type SupportedLanguage,
+} from "./lib/languages";
 
 function App() {
   // State
   const [code, setCode] = useState("");
-  const [language, setLanguage] = useState(SUPPORTED_LANGUAGES[0]);
+  const [language, setLanguage] = useState<SupportedLanguage>(SUPPORTED_LANGUAGES[0]);
   const [models, setModels] = useState<string[]>([]);
   const [selectedModel, setSelectedModel] = useState("");
   const [modelsLoading, setModelsLoading] = useState(false);
@@ -120,7 +124,7 @@ function App() {
                 id="language-select"
                 className="select-input"
                 value={language}
-                onChange={(e) => setLanguage(e.target.value)}
+                onChange={(e) => setLanguage(e.target.value as SupportedLanguage)}
               >
                 {SUPPORTED_LANGUAGES.map((lang) => (
                   <option key={lang} value={lang}>

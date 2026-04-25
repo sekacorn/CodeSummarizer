@@ -119,14 +119,12 @@ pub fn redact_secrets(code: &str, findings: &[SecretFinding]) -> String {
         } else if finding.kind.contains("PEM") {
             // Redact entire PEM block
             if let Some(remaining) = redacted.get(start..) {
-                if let Some(end_offset) = remaining.find("-----END") {
-                    if let Some(final_end) = remaining.get(end_offset..).and_then(|s| s.find("-----")) {
-                        // +5 for the five dashes in "-----" that close the END marker
-                        let actual_end = start + end_offset + final_end + 5;
+                let end_pattern = Regex::new(r"-----END (RSA |EC )?PRIVATE KEY-----").unwrap();
+                if let Some(end_match) = end_pattern.find(remaining) {
+                        let actual_end = start + end_match.end();
                         if actual_end <= redacted.len() {
                             redacted.replace_range(start..actual_end, "***REDACTED PEM KEY***");
                         }
-                    }
                 }
             }
         } else if finding.kind.contains("Bearer") {
@@ -268,6 +266,7 @@ mod tests {
         let redacted = redact_secrets(code, &scan_result.findings);
         assert!(redacted.contains("***REDACTED PEM KEY***"));
         assert!(!redacted.contains("MIIEvQIBADANBg=="));
+        assert!(!redacted.contains("END PRIVATE KEY"));
     }
 
     #[test]

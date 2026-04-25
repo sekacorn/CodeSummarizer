@@ -10,6 +10,11 @@ export const SUPPORTED_LANGUAGES = [
   "DAX",
   "C",
   "C++",
+  "C#",
+  "Assembly",
+  "Fortran",
+  "COBOL",
+  "BASH",
 ] as const;
 
 export type SupportedLanguage = typeof SUPPORTED_LANGUAGES[number];
