@@ -443,6 +443,16 @@ For issues or questions:
 - Verify Ollama is running and models are installed
 - Check the browser/dev console for errors (in dev mode)
 
+## Security
+
+See [SECURITY.md](SECURITY.md) for the project's security policy, limitations, vulnerability reporting process, and guidance for evaluating the app in sensitive environments.
+
+Additional review-oriented documentation:
+
+- [PRIVACY.md](PRIVACY.md)
+- [THREAT_MODEL.md](THREAT_MODEL.md)
+- [ARCHITECTURE.md](ARCHITECTURE.md)
+
 ---
 
 **Built for developers who need help without giving up privacy. Your code stays on your machine.**

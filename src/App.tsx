@@ -18,6 +18,7 @@ function App() {
   const [selectedModel, setSelectedModel] = useState("");
   const [modelsLoading, setModelsLoading] = useState(false);
   const [modelsError, setModelsError] = useState<string | undefined>();
+  const [sensitiveMode, setSensitiveMode] = useState(false);
   const [redactSecrets, setRedactSecrets] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [analysis, setAnalysis] = useState<CodeAnalysis | null>(null);
@@ -150,11 +151,42 @@ function App() {
                   type="checkbox"
                   checked={redactSecrets}
                   onChange={(e) => setRedactSecrets(e.target.checked)}
+                  disabled={sensitiveMode}
                 />
-                <span>Mask secrets before sending to model</span>
+                <span>
+                  Mask secrets before sending to model
+                  {sensitiveMode ? " (enforced by Sensitive Mode)" : ""}
+                </span>
+              </label>
+            </div>
+
+            <div className="toggle-container">
+              <label className="toggle-label">
+                <input
+                  type="checkbox"
+                  checked={sensitiveMode}
+                  onChange={(e) => {
+                    const enabled = e.target.checked;
+                    setSensitiveMode(enabled);
+                    if (enabled) {
+                      setRedactSecrets(true);
+                    }
+                  }}
+                />
+                <span>Sensitive Mode</span>
               </label>
             </div>
           </div>
+
+          {sensitiveMode && (
+            <div className="warnings-panel">
+              <h3 className="warning-title">Sensitive Mode Enabled</h3>
+              <p className="warning-text">
+                Secret redaction is enforced and raw model output is hidden to
+                reduce accidental exposure while reviewing sensitive code.
+              </p>
+            </div>
+          )}
 
           {/* Code Input */}
           <CodeInput value={code} onChange={setCode} />
@@ -222,7 +254,7 @@ function App() {
         <div className="right-panel">
           <OutputPanel
             analysis={analysis}
-            rawOutput={rawOutput}
+            rawOutput={sensitiveMode ? undefined : rawOutput}
             error={outputError}
           />
         </div>
