@@ -1,5 +1,12 @@
 # Code Summarizer
 
+[![Latest release](https://img.shields.io/github/v/release/sekacorn/CodeSummarizer)](https://github.com/sekacorn/CodeSummarizer/releases/latest)
+[![Windows build](https://github.com/sekacorn/CodeSummarizer/actions/workflows/windows-release.yml/badge.svg)](https://github.com/sekacorn/CodeSummarizer/actions/workflows/windows-release.yml)
+[![License: GPL-3.0-or-later](https://img.shields.io/badge/license-GPL--3.0--or--later-blue.svg)](LICENSE)
+![Rust](https://img.shields.io/badge/backend-Rust-orange)
+![Tauri](https://img.shields.io/badge/desktop-Tauri-24C8DB)
+![Windows](https://img.shields.io/badge/platform-Windows-0078D4)
+
 A **local-first, privacy-first, offline-capable** desktop application for analyzing code snippets with local AI models. It is built for developers who need help understanding code without sending source material to the internet, especially junior developers working in sensitive environments where cloud tools are not allowed. Built with Tauri (Rust) and React (TypeScript).
 
 ## Screenshots
@@ -51,7 +58,7 @@ This project came out of a real need: needing support on an assignment when expe
 
 ## Features
 
-- **Supported Languages for Analysis**: Java, Python, JavaScript, SQL, VBA, JSON, CSS, DAX, C, C++, C#, Assembly, Fortran, COBOL, BASH
+- **Supported Languages for Analysis**: Java, Python, JavaScript, SQL, VBA, JSON, CSS, DAX, C, C++, C#, Assembly, Fortran, COBOL, BASH, PL/SQL, T-SQL, SAS, R, MATLAB, VHDL, Verilog, SystemVerilog, VB.NET, Pascal, Delphi/Object Pascal, ABAP, XML, XSLT, Terraform/HCL
 - **Analysis Modes**:
   - **Summarize**: Get a concise overview with structured breakdown
   - **Explain for Junior**: Beginner-friendly explanations with detailed walkthroughs
@@ -95,17 +102,33 @@ The **Validate** feature is currently **model-guided validation**, not a replace
 
 ## Prerequisites
 
-Before you can use Code Summarizer, you need:
+Release users need:
 
-1. **Node.js** (v18 or higher) - [Download](https://nodejs.org/)
-2. **Rust** (latest stable) - [Install](https://rustup.rs/)
-3. **Ollama** - Local LLM server - [Download](https://ollama.ai/)
+1. Windows 10 or Windows 11 (64-bit)
+2. **Ollama**, installed separately from [ollama.com](https://ollama.com/)
+3. At least one local Ollama model
+
+The MSI and NSIS installers include the offline Microsoft Edge WebView2 installer. Release users do **not** need Node.js or Rust. Developers building from source need Node.js 22 and the stable Rust toolchain.
 
 ## Installation
 
+### Windows release
+
+1. Download the NSIS `Setup.exe` (recommended for most users) or MSI from [GitHub Releases](https://github.com/sekacorn/CodeSummarizer/releases).
+2. Download `SHA256SUMS.txt` and verify the file, for example:
+
+   ```powershell
+   Get-FileHash ".\Code Summarizer_1.0.0_x64-setup.exe" -Algorithm SHA256
+   ```
+
+3. Run the installer. Unsigned community builds may display Microsoft SmartScreen warnings; verify the checksum and release source before continuing.
+4. Install Ollama and pull a model as described below.
+
+The portable ZIP is useful when installation is not permitted. Extract it and run `Code Summarizer.exe`; it requires WebView2 to already be installed. See [WINDOWS_RELEASE.md](WINDOWS_RELEASE.md) for installer, silent-install, uninstall, and packaging details.
+
 ### 1. Install Ollama
 
-Download and install Ollama from [ollama.ai](https://ollama.ai/)
+Download and install Ollama from [ollama.com](https://ollama.com/). Ollama and model files are not bundled, installed, updated, or licensed by Code Summarizer.
 
 ### 2. Pull a Model
 
@@ -132,7 +155,7 @@ Verify Ollama is running:
 ollama list
 ```
 
-### 3. Clone and Setup This Project
+### 3. Build from source (developers only)
 
 ```bash
 # Clone the repository
@@ -149,7 +172,7 @@ chmod +x setup.sh && ./setup.sh
 Or if you prefer to do it manually:
 
 ```bash
-npm install
+npm ci
 npm run generate-icons
 ```
 
@@ -168,18 +191,18 @@ This will:
 2. Compile the Rust backend
 3. Launch the application window
 
-### Production Build
+### Production Windows build
 
 ```bash
-npm run tauri build
+npm run tauri:build:windows
 ```
 
-The built application will be in `src-tauri/target/release/`.
+The verified MSI, NSIS installer, portable ZIP, and SHA-256 manifest will be in `artifacts/`.
 
 ## Usage
 
 1. **Start Ollama**: Make sure Ollama is running (`ollama serve`)
-2. **Launch the App**: Run `npm run tauri dev`
+2. **Launch the App**: Start the installed app from the Start menu (or use `npm run tauri dev` when developing)
 3. **Select Language**: Choose the programming language of your code
 4. **Select Model**: Pick an Ollama model from the dropdown
 5. **Configure Secret Masking**: Toggle "Mask secrets before sending to model" (ON by default)
@@ -300,6 +323,8 @@ The app automatically scans for:
 
 When enabled (default), detected secrets are replaced with `***REDACTED***` before sending to the local model.
 
+Sensitive Mode independently enforces redaction at the Rust command boundary, hides raw model output, and disables clipboard export. Parsed output and raw model output still exist temporarily in application memory while a response is processed.
+
 ### No Data Persistence
 
 - Code is **never** written to disk by this application
@@ -310,6 +335,7 @@ When enabled (default), detected secrets are replaced with `***REDACTED***` befo
 
 - All model requests go exclusively to `http://127.0.0.1:11434`
 - No external network requests are made
+- The Rust backend uses a fixed loopback URL; the frontend cannot choose another endpoint
 
 ## Architecture
 
@@ -369,7 +395,10 @@ npm run dev
 npm run tauri:dev
 
 # Build for production
-npm run tauri:build
+npm run tauri:build:windows
+
+# Run TypeScript/schema tests, frontend build, Rust/redaction tests, and release checks
+npm run verify
 
 # Generate icons
 npm run generate-icons
@@ -452,6 +481,10 @@ Additional review-oriented documentation:
 - [PRIVACY.md](PRIVACY.md)
 - [THREAT_MODEL.md](THREAT_MODEL.md)
 - [ARCHITECTURE.md](ARCHITECTURE.md)
+- [WINDOWS_RELEASE.md](WINDOWS_RELEASE.md)
+- [RELEASE_NOTES.md](RELEASE_NOTES.md)
+- [AUDIT_READINESS.md](AUDIT_READINESS.md)
+- [RESTRICTED_DEPLOYMENT.md](RESTRICTED_DEPLOYMENT.md)
 
 ---
 

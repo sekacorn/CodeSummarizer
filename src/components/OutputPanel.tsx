@@ -6,16 +6,22 @@ interface OutputPanelProps {
   analysis: CodeAnalysis | null;
   rawOutput?: string;
   error?: string;
+  sensitiveMode?: boolean;
 }
 
-export function OutputPanel({ analysis, rawOutput, error }: OutputPanelProps) {
+export function OutputPanel({ analysis, rawOutput, error, sensitiveMode = false }: OutputPanelProps) {
   const [showRawOutput, setShowRawOutput] = useState(false);
 
   const copyToClipboard = (text: string, label: string) => {
-    navigator.clipboard.writeText(text).then(() => {
-      alert(`${label} copied to clipboard!`);
-    });
+    if (sensitiveMode) return;
+    navigator.clipboard.writeText(text)
+      .then(() => alert(`${label} copied to clipboard!`))
+      .catch(() => alert("Clipboard access was denied by Windows."));
   };
+
+  const copyProps = sensitiveMode
+    ? { disabled: true, title: "Clipboard export is disabled in Sensitive Mode" }
+    : {};
 
   if (error) {
     return (
@@ -60,6 +66,7 @@ export function OutputPanel({ analysis, rawOutput, error }: OutputPanelProps) {
             <h3>Validation Result</h3>
             <button
               className="copy-button"
+              {...copyProps}
               onClick={() => {
                 const errors = analysis.syntax_errors ?? [];
                 const text = analysis.is_valid
@@ -105,6 +112,7 @@ export function OutputPanel({ analysis, rawOutput, error }: OutputPanelProps) {
           <h3>Summary</h3>
           <button
             className="copy-button"
+            {...copyProps}
             onClick={() =>
               copyToClipboard(analysis.summary.join("\n"), "Summary")
             }
@@ -129,6 +137,7 @@ export function OutputPanel({ analysis, rawOutput, error }: OutputPanelProps) {
           <h3>Walkthrough</h3>
           <button
             className="copy-button"
+            {...copyProps}
             onClick={() =>
               copyToClipboard(analysis.walkthrough.join("\n"), "Walkthrough")
             }
@@ -153,6 +162,7 @@ export function OutputPanel({ analysis, rawOutput, error }: OutputPanelProps) {
           <h3>Inputs</h3>
           <button
             className="copy-button"
+            {...copyProps}
             onClick={() =>
               copyToClipboard(analysis.inputs.join("\n"), "Inputs")
             }
@@ -177,6 +187,7 @@ export function OutputPanel({ analysis, rawOutput, error }: OutputPanelProps) {
           <h3>Outputs</h3>
           <button
             className="copy-button"
+            {...copyProps}
             onClick={() =>
               copyToClipboard(analysis.outputs.join("\n"), "Outputs")
             }
@@ -201,6 +212,7 @@ export function OutputPanel({ analysis, rawOutput, error }: OutputPanelProps) {
           <h3>Side Effects</h3>
           <button
             className="copy-button"
+            {...copyProps}
             onClick={() =>
               copyToClipboard(analysis.side_effects.join("\n"), "Side Effects")
             }
@@ -225,6 +237,7 @@ export function OutputPanel({ analysis, rawOutput, error }: OutputPanelProps) {
           <h3>Risks</h3>
           <button
             className="copy-button"
+            {...copyProps}
             onClick={() =>
               copyToClipboard(
                 analysis.risks
@@ -246,6 +259,7 @@ export function OutputPanel({ analysis, rawOutput, error }: OutputPanelProps) {
           <h3>Junior Explanation</h3>
           <button
             className="copy-button"
+            {...copyProps}
             onClick={() =>
               copyToClipboard(analysis.junior_explanation, "Junior Explanation")
             }

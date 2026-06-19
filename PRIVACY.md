@@ -24,6 +24,7 @@ Under normal operation:
 - The pasted code stays on the local machine
 - The app sends the snippet only to a locally running Ollama service at `http://127.0.0.1:11434`
 - The app does not intentionally send snippets to external internet services
+- The endpoint is fixed in the Rust backend; it is not configurable from the frontend
 
 ## What Is Not Collected by Default
 
@@ -44,6 +45,9 @@ Important limitations:
 - Secret scanning is regex-based and best-effort
 - It may miss some secrets
 - Users should still avoid pasting unnecessary sensitive data
+- Sensitive Mode disables app-provided clipboard export, but it cannot prevent operating-system screenshots, accessibility tools, memory inspection, or endpoint monitoring
+- Raw model output exists temporarily in process memory so it can be parsed, even when Sensitive Mode prevents it from being displayed
+- Ollama may have its own logs, caches, or operational behavior; review that runtime separately
 
 ## Local Model Responsibility
 

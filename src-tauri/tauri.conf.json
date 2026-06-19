@@ -8,7 +8,7 @@
   },
   "package": {
     "productName": "Code Summarizer",
-    "version": "0.1.0"
+    "version": "1.0.0"
   },
   "tauri": {
     "allowlist": {
@@ -25,15 +25,39 @@
     },
     "bundle": {
       "active": true,
-      "targets": "all",
-      "identifier": "com.codesummarizer.app",
+      "targets": ["nsis", "msi"],
+      "identifier": "com.sekacorn.codesummarizer",
+      "publisher": "sekacorn",
+      "copyright": "Copyright © 2026 sekacorn. Licensed under GPL-3.0-or-later.",
+      "category": "DeveloperTool",
+      "shortDescription": "Private, local-first code analysis with Ollama",
+      "longDescription": "Analyze, explain, validate, and scan source code locally with a separately installed Ollama model.",
       "icon": [
         "icons/32x32.png",
         "icons/128x128.png",
         "icons/128x128@2x.png",
         "icons/icon.icns",
         "icons/icon.ico"
-      ]
+      ],
+      "windows": {
+        "allowDowngrades": false,
+        "digestAlgorithm": "sha256",
+        "webviewInstallMode": {
+          "type": "offlineInstaller",
+          "silent": true
+        },
+        "wix": {
+          "language": "en-US",
+          "license": "../LICENSE"
+        },
+        "nsis": {
+          "license": "../LICENSE",
+          "installerIcon": "icons/icon.ico",
+          "installMode": "currentUser",
+          "languages": ["English"],
+          "compression": "lzma"
+        }
+      }
     },
     "security": {
       "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src http://127.0.0.1:11434; img-src 'self' data:; font-src 'self'"

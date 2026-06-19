@@ -1,6 +1,6 @@
+use super::types::{OllamaGenerateRequest, OllamaGenerateResponse, OllamaModelsResponse};
 use reqwest::blocking::Client;
 use std::time::Duration;
-use super::types::{OllamaModelsResponse, OllamaGenerateRequest, OllamaGenerateResponse};
 
 const OLLAMA_BASE_URL: &str = "http://127.0.0.1:11434";
 const REQUEST_TIMEOUT_SECS: u64 = 120;
@@ -15,35 +15,33 @@ pub fn list_models() -> Result<Vec<String>, String> {
 
     let url = format!("{}/api/tags", OLLAMA_BASE_URL);
 
-    let response = client
-        .get(&url)
-        .send()
-        .map_err(|e| {
-            if e.is_connect() {
-                "Ollama is not running. Please start Ollama and try again.".to_string()
-            } else if e.is_timeout() {
-                "Request to Ollama timed out. Check if Ollama is responsive.".to_string()
-            } else {
-                format!("Failed to connect to Ollama: {}", e)
-            }
-        })?;
+    let response = client.get(&url).send().map_err(|e| {
+        if e.is_connect() {
+            "Ollama is not running. Please start Ollama and try again.".to_string()
+        } else if e.is_timeout() {
+            "Request to Ollama timed out. Check if Ollama is responsive.".to_string()
+        } else {
+            format!("Failed to connect to Ollama: {}", e)
+        }
+    })?;
 
     if !response.status().is_success() {
-        return Err(format!("Ollama returned error status: {}", response.status()));
+        return Err(format!(
+            "Ollama returned error status: {}",
+            response.status()
+        ));
     }
 
     let models_response: OllamaModelsResponse = response
         .json()
         .map_err(|e| format!("Failed to parse Ollama response: {}", e))?;
 
-    let model_names: Vec<String> = models_response
-        .models
-        .into_iter()
-        .map(|m| m.name)
-        .collect();
+    let model_names: Vec<String> = models_response.models.into_iter().map(|m| m.name).collect();
 
     if model_names.is_empty() {
-        return Err("No models found. Please pull a model using 'ollama pull <model-name>'.".to_string());
+        return Err(
+            "No models found. Please pull a model using 'ollama pull <model-name>'.".to_string(),
+        );
     }
 
     Ok(model_names)

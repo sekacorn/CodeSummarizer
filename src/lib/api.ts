@@ -33,7 +33,8 @@ export async function summarizeCode(
   code: string,
   model: string,
   mode: string,
-  redact: boolean
+  redact: boolean,
+  sensitiveMode: boolean
 ): Promise<SummarizeResponse> {
   try {
     const result = await invoke<SummarizeResponse>("summarize_code", {
@@ -42,6 +43,7 @@ export async function summarizeCode(
       model,
       mode,
       redact,
+      sensitiveMode,
     });
     return result;
   } catch (error) {

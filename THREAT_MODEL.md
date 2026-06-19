@@ -26,6 +26,8 @@ This document gives a practical threat model for Code Summarizer so reviewers ca
 - Malicious or risky dependencies
 - Misconfigured local environments
 - Unapproved or untrusted local model artifacts
+- A malicious local process that binds to or controls the expected Ollama loopback endpoint
+- A local user or endpoint tool able to inspect process memory, the clipboard, or the screen
 
 ## Trust Assumptions
 
@@ -69,11 +71,26 @@ Mitigation:
 - Secret scanning
 - Redaction support
 - Sensitive Mode can enforce redaction and hide raw model output
+- Sensitive Mode disables app-provided clipboard export
 
 Residual risk:
 
 - Regex-based scanning is not exhaustive
 - User can still paste more than necessary
+- Input and model output remain temporarily present in process memory
+- Operating-system capture and monitoring are outside the app's control
+
+### Loopback Service Impersonation
+
+Mitigation:
+
+- The destination is fixed to `127.0.0.1:11434`; remote and user-selected endpoints are rejected by design
+- Responses are parsed as data and validated against a schema rather than executed as code
+
+Residual risk:
+
+- Loopback does not authenticate Ollama; a malicious local process could receive prompts or return crafted text
+- Host-level controls and an approved Ollama deployment remain required for restricted use
 
 ### Unsafe Trust in Model Output
 
@@ -117,3 +134,4 @@ The application does not currently attempt to solve:
 - Approve Ollama and model files separately
 - Use Sensitive Mode by default for higher-risk work
 - Re-review changes before updating deployed versions
+- Verify release SHA-256 checksums and, when available, Authenticode signatures

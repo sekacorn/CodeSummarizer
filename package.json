@@ -1,13 +1,13 @@
 {
   "name": "code-summarizer",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.0.0",
   "type": "module",
   "repository": {
     "type": "git",
     "url": "https://github.com/sekacorn/CodeSummarizer.git"
   },
-  "author": "sekacorn",
+  "author": "sekacorn <sekacorn@aol.com>",
   "license": "GPL-3.0-or-later",
   "homepage": "https://github.com/sekacorn/CodeSummarizer",
   "bugs": {
@@ -19,9 +19,14 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:rust": "cargo test --manifest-path src-tauri/Cargo.toml",
+    "audit": "npm audit --audit-level=high",
+    "check:release": "node scripts/check-release.mjs",
+    "verify": "npm run audit && npm run test && npm run build && npm run test:rust && npm run check:release",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",
+    "tauri:build:windows": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-windows.ps1",
     "generate-icons": "node create-icon.cjs && tauri icon app-icon.png"
   },
   "dependencies": {
@@ -32,12 +37,12 @@
   },
   "devDependencies": {
     "@tauri-apps/cli": "^1.5.9",
-    "@types/react": "^18.2.43",
-    "@types/react-dom": "^18.2.17",
-    "@vitejs/plugin-react": "^4.2.1",
+    "@types/react": "^18.3.31",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^6.0.2",
     "sharp": "^0.34.5",
-    "typescript": "^5.3.3",
-    "vite": "^5.0.8",
-    "vitest": "^1.0.0"
+    "typescript": "^6.0.3",
+    "vite": "^8.0.16",
+    "vitest": "^4.1.9"
   }
 }

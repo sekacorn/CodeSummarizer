@@ -70,7 +70,8 @@ function App() {
         code,
         selectedModel,
         mode,
-        redactSecrets
+        redactSecrets,
+        sensitiveMode
       );
 
       // Store secret findings
@@ -81,10 +82,10 @@ function App() {
 
       if (parseResult.success && parseResult.data) {
         setAnalysis(parseResult.data);
-        setRawOutput(response.model_output);
+        if (!sensitiveMode) setRawOutput(response.model_output);
       } else {
         setOutputError(parseResult.error);
-        setRawOutput(response.model_output);
+        if (!sensitiveMode) setRawOutput(response.model_output);
       }
     } catch (error) {
       setOutputError(String(error));
@@ -151,7 +152,7 @@ function App() {
                   type="checkbox"
                   checked={redactSecrets}
                   onChange={(e) => setRedactSecrets(e.target.checked)}
-                  disabled={sensitiveMode}
+                  disabled={sensitiveMode || isProcessing}
                 />
                 <span>
                   Mask secrets before sending to model
@@ -165,11 +166,13 @@ function App() {
                 <input
                   type="checkbox"
                   checked={sensitiveMode}
+                  disabled={isProcessing}
                   onChange={(e) => {
                     const enabled = e.target.checked;
                     setSensitiveMode(enabled);
                     if (enabled) {
                       setRedactSecrets(true);
+                      setRawOutput(undefined);
                     }
                   }}
                 />
@@ -256,6 +259,7 @@ function App() {
             analysis={analysis}
             rawOutput={sensitiveMode ? undefined : rawOutput}
             error={outputError}
+            sensitiveMode={sensitiveMode}
           />
         </div>
       </div>

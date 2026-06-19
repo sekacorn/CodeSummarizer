@@ -1,5 +1,5 @@
-use regex::Regex;
 use super::types::{SecretFinding, SecretScanResult};
+use regex::Regex;
 
 /// Scans code for potential secrets using regex patterns
 pub fn scan_for_secrets(code: &str) -> SecretScanResult {
@@ -51,7 +51,8 @@ pub fn scan_for_secrets(code: &str) -> SecretScanResult {
     }
 
     // Bearer tokens in Authorization headers
-    let bearer_pattern = Regex::new(r"(?i)authorization:\s*bearer\s+([a-zA-Z0-9_\-\.]{20,})").unwrap();
+    let bearer_pattern =
+        Regex::new(r"(?i)authorization:\s*bearer\s+([a-zA-Z0-9_\-\.]{20,})").unwrap();
     for mat in bearer_pattern.find_iter(code) {
         findings.push(SecretFinding {
             kind: "Bearer Token".to_string(),
@@ -91,7 +92,9 @@ pub fn redact_secrets(code: &str, findings: &[SecretFinding]) -> String {
         } else if finding.kind.contains("JWT") {
             // Find the end of the JWT token
             if let Some(remaining) = redacted.get(start..) {
-                if let Some(end_offset) = remaining.find(|c: char| !c.is_alphanumeric() && c != '_' && c != '-' && c != '.') {
+                if let Some(end_offset) = remaining
+                    .find(|c: char| !c.is_alphanumeric() && c != '_' && c != '-' && c != '.')
+                {
                     redacted.replace_range(start..start + end_offset, "***REDACTED***");
                 } else {
                     // JWT extends to end of string
@@ -121,10 +124,10 @@ pub fn redact_secrets(code: &str, findings: &[SecretFinding]) -> String {
             if let Some(remaining) = redacted.get(start..) {
                 let end_pattern = Regex::new(r"-----END (RSA |EC )?PRIVATE KEY-----").unwrap();
                 if let Some(end_match) = end_pattern.find(remaining) {
-                        let actual_end = start + end_match.end();
-                        if actual_end <= redacted.len() {
-                            redacted.replace_range(start..actual_end, "***REDACTED PEM KEY***");
-                        }
+                    let actual_end = start + end_match.end();
+                    if actual_end <= redacted.len() {
+                        redacted.replace_range(start..actual_end, "***REDACTED PEM KEY***");
+                    }
                 }
             }
         } else if finding.kind.contains("Bearer") {
@@ -134,7 +137,8 @@ pub fn redact_secrets(code: &str, findings: &[SecretFinding]) -> String {
                     let token_start = start + bearer_pos + 6; // "bearer" length
                     if let Some(token_str) = redacted.get(token_start..) {
                         // Skip whitespace (sum byte lengths to get correct byte offset)
-                        let ws_offset: usize = token_str.chars()
+                        let ws_offset: usize = token_str
+                            .chars()
                             .take_while(|c| c.is_whitespace())
                             .map(|c| c.len_utf8())
                             .sum();
@@ -142,14 +146,20 @@ pub fn redact_secrets(code: &str, findings: &[SecretFinding]) -> String {
 
                         // Find end of token (sum byte lengths, not char count, for correct byte offset)
                         if let Some(rest) = redacted.get(actual_token_start..) {
-                            let token_len: usize = rest.chars()
-                                .take_while(|c| c.is_alphanumeric() || *c == '_' || *c == '-' || *c == '.')
+                            let token_len: usize = rest
+                                .chars()
+                                .take_while(|c| {
+                                    c.is_alphanumeric() || *c == '_' || *c == '-' || *c == '.'
+                                })
                                 .map(|c| c.len_utf8())
                                 .sum();
                             if token_len > 0 {
                                 let actual_end = actual_token_start + token_len;
                                 if actual_end <= redacted.len() {
-                                    redacted.replace_range(actual_token_start..actual_end, "***REDACTED***");
+                                    redacted.replace_range(
+                                        actual_token_start..actual_end,
+                                        "***REDACTED***",
+                                    );
                                 }
                             }
                         }

@@ -59,6 +59,9 @@ When secret masking is enabled, detected secrets are redacted before the snippet
 
 - The intended model endpoint is localhost only
 - Tauri CSP restricts `connect-src` to `http://127.0.0.1:11434`
+- Browser HTTP and shell APIs are disabled by the Tauri allowlist
+- The Rust HTTP client uses a compile-time fixed loopback endpoint and does not follow a user-provided host
+- Sensitive Mode enforces redaction in Rust and disables UI clipboard export and raw-output display
 - The application is designed as a local desktop tool, not a networked multi-user service
 
 ### Structured Output Handling
@@ -74,6 +77,9 @@ When secret masking is enabled, detected secrets are redacted before the snippet
 - **Model quality risk**: Analysis accuracy depends on the selected local model
 - **No enterprise identity layer**: This is a local desktop app, not a centralized IAM-integrated platform
 - **No formal accreditation artifacts**: This repo does not provide ATO, RMF, FedRAMP, IL, or equivalent authorization documentation by itself
+- **Unsigned releases**: Unless a release explicitly states otherwise, Windows artifacts are not Authenticode-signed and may trigger SmartScreen
+- **In-memory exposure**: Input and model output necessarily exist in process memory; Sensitive Mode is an exposure-reduction feature, not a secure memory boundary
+- **Loopback trust**: Any process able to impersonate or control the local Ollama endpoint can observe prompts and return malicious or misleading output
 
 ## Recommended Use in Sensitive Environments
 
@@ -123,6 +129,7 @@ For higher-trust environments, consider:
 - Internal artifact mirroring
 - Reproducible build procedures where possible
 - Checksum verification of release artifacts
+- Authenticode signing with protected key material for higher-assurance distribution
 - Separate approval of the application and the local model runtime
 
 ## Vulnerability Disclosure

@@ -15,6 +15,21 @@ export const SUPPORTED_LANGUAGES = [
   "Fortran",
   "COBOL",
   "BASH",
+  "PL/SQL",
+  "T-SQL",
+  "SAS",
+  "R",
+  "MATLAB",
+  "VHDL",
+  "Verilog",
+  "SystemVerilog",
+  "VB.NET",
+  "Pascal",
+  "Delphi/Object Pascal",
+  "ABAP",
+  "XML",
+  "XSLT",
+  "Terraform/HCL",
 ] as const;
 
 export type SupportedLanguage = typeof SUPPORTED_LANGUAGES[number];
