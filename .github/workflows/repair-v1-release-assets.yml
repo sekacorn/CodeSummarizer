@@ -1,0 +1,49 @@
+name: Repair v1.0.0 release asset names
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - ".github/workflows/repair-v1-release-assets.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Rename and verify v1.0.0 assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          release_json="$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/v1.0.0")"
+
+          rename_asset() {
+            local old_name="$1"
+            local new_name="$2"
+            local asset_id
+            asset_id="$(jq -r --arg name "$old_name" '.assets[] | select(.name == $name) | .id' <<<"$release_json")"
+
+            if [[ -n "$asset_id" ]]; then
+              gh api --method PATCH "repos/$GITHUB_REPOSITORY/releases/assets/$asset_id" -f name="$new_name" >/dev/null
+            elif ! jq -e --arg name "$new_name" '.assets[] | select(.name == $name)' <<<"$release_json" >/dev/null; then
+              echo "Neither source nor destination asset exists: $old_name -> $new_name" >&2
+              exit 1
+            fi
+          }
+
+          rename_asset "Code.Summarizer_1.0.0_x64-setup.exe" "Code Summarizer_1.0.0_x64-setup.exe"
+          rename_asset "Code.Summarizer_1.0.0_x64_en-US.msi" "Code Summarizer_1.0.0_x64_en-US.msi"
+
+          release_json="$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/v1.0.0")"
+          for expected in \
+            "Code Summarizer_1.0.0_x64-setup.exe" \
+            "Code Summarizer_1.0.0_x64_en-US.msi" \
+            "CodeSummarizer-1.0.0-windows-x64-portable.zip" \
+            "SHA256SUMS.txt"; do
+            jq -e --arg name "$expected" '.assets[] | select(.name == $name)' <<<"$release_json" >/dev/null
+          done
