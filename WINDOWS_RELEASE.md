@@ -30,7 +30,7 @@ Use the NSIS installer for a normal user installation. Use the MSI where organiz
 For managed MSI installation:
 
 ```powershell
-msiexec /i .\CodeSummarizer_1.0.0_x64_en-US.msi /qn /norestart
+msiexec /i .\CodeSummarizer-1.0.0-windows-x64.msi /qn /norestart
 ```
 
 Remove it from Windows Settings > Apps, or use the product-aware uninstall command supplied by deployment tooling.

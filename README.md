@@ -118,7 +118,7 @@ The MSI and NSIS installers include the offline Microsoft Edge WebView2 installe
 2. Download `SHA256SUMS.txt` and verify the file, for example:
 
    ```powershell
-   Get-FileHash ".\Code Summarizer_1.0.0_x64-setup.exe" -Algorithm SHA256
+   Get-FileHash .\CodeSummarizer-1.0.0-windows-x64-setup.exe -Algorithm SHA256
    ```
 
 3. Run the installer. Unsigned community builds may display Microsoft SmartScreen warnings; verify the checksum and release source before continuing.

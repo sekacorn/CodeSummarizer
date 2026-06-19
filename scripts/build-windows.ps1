@@ -43,7 +43,14 @@ Compress-Archive -Path (Join-Path $portableDir "*") -DestinationPath (Join-Path 
 
 Get-ChildItem -Path (Join-Path $releaseDir "bundle") -Recurse -File |
     Where-Object { $_.Extension -in ".msi", ".exe" } |
-    ForEach-Object { Copy-Item -LiteralPath $_.FullName -Destination $artifacts }
+    ForEach-Object {
+        $artifactName = if ($_.Extension -eq ".msi") {
+            "CodeSummarizer-$version-windows-x64.msi"
+        } else {
+            "CodeSummarizer-$version-windows-x64-setup.exe"
+        }
+        Copy-Item -LiteralPath $_.FullName -Destination (Join-Path $artifacts $artifactName)
+    }
 
 $releaseFiles = Get-ChildItem -LiteralPath $artifacts -File | Sort-Object Name
 $checksumLines = foreach ($file in $releaseFiles) {
