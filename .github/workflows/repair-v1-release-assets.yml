@@ -21,7 +21,7 @@ jobs:
           set -euo pipefail
 
           mkdir release-assets
-          gh release download v1.0.0 --dir release-assets
+          gh release download v1.0.0 --repo "$GITHUB_REPOSITORY" --dir release-assets
 
           mv "release-assets/Code.Summarizer_1.0.0_x64-setup.exe" \
             "release-assets/CodeSummarizer-1.0.0-windows-x64-setup.exe"
@@ -36,14 +36,14 @@ jobs:
               CodeSummarizer-1.0.0-windows-x64-setup.exe > SHA256SUMS.txt
           )
 
-          gh release upload v1.0.0 \
+          gh release upload v1.0.0 --repo "$GITHUB_REPOSITORY" \
             release-assets/CodeSummarizer-1.0.0-windows-x64-setup.exe \
             release-assets/CodeSummarizer-1.0.0-windows-x64.msi \
             --clobber
 
-          gh release delete-asset v1.0.0 "Code.Summarizer_1.0.0_x64-setup.exe" --yes
-          gh release delete-asset v1.0.0 "Code.Summarizer_1.0.0_x64_en-US.msi" --yes
-          gh release upload v1.0.0 release-assets/SHA256SUMS.txt --clobber
+          gh release delete-asset v1.0.0 "Code.Summarizer_1.0.0_x64-setup.exe" --repo "$GITHUB_REPOSITORY" --yes
+          gh release delete-asset v1.0.0 "Code.Summarizer_1.0.0_x64_en-US.msi" --repo "$GITHUB_REPOSITORY" --yes
+          gh release upload v1.0.0 release-assets/SHA256SUMS.txt --repo "$GITHUB_REPOSITORY" --clobber
 
           release_json="$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/v1.0.0")"
           for expected in \
