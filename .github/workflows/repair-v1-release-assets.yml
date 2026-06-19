@@ -20,30 +20,41 @@ jobs:
         run: |
           set -euo pipefail
 
-          release_json="$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/v1.0.0")"
+          mkdir release-assets
+          gh release download v1.0.0 --dir release-assets
 
-          rename_asset() {
-            local old_name="$1"
-            local new_name="$2"
-            local asset_id
-            asset_id="$(jq -r --arg name "$old_name" '.assets[] | select(.name == $name) | .id' <<<"$release_json")"
+          mv "release-assets/Code.Summarizer_1.0.0_x64-setup.exe" \
+            "release-assets/CodeSummarizer-1.0.0-windows-x64-setup.exe"
+          mv "release-assets/Code.Summarizer_1.0.0_x64_en-US.msi" \
+            "release-assets/CodeSummarizer-1.0.0-windows-x64.msi"
 
-            if [[ -n "$asset_id" ]]; then
-              gh api --method PATCH "repos/$GITHUB_REPOSITORY/releases/assets/$asset_id" -f name="$new_name" >/dev/null
-            elif ! jq -e --arg name "$new_name" '.assets[] | select(.name == $name)' <<<"$release_json" >/dev/null; then
-              echo "Neither source nor destination asset exists: $old_name -> $new_name" >&2
-              exit 1
-            fi
-          }
+          (
+            cd release-assets
+            sha256sum \
+              CodeSummarizer-1.0.0-windows-x64.msi \
+              CodeSummarizer-1.0.0-windows-x64-portable.zip \
+              CodeSummarizer-1.0.0-windows-x64-setup.exe > SHA256SUMS.txt
+          )
 
-          rename_asset "Code.Summarizer_1.0.0_x64-setup.exe" "Code Summarizer_1.0.0_x64-setup.exe"
-          rename_asset "Code.Summarizer_1.0.0_x64_en-US.msi" "Code Summarizer_1.0.0_x64_en-US.msi"
+          gh release upload v1.0.0 \
+            release-assets/CodeSummarizer-1.0.0-windows-x64-setup.exe \
+            release-assets/CodeSummarizer-1.0.0-windows-x64.msi \
+            --clobber
+
+          gh release delete-asset v1.0.0 "Code.Summarizer_1.0.0_x64-setup.exe" --yes
+          gh release delete-asset v1.0.0 "Code.Summarizer_1.0.0_x64_en-US.msi" --yes
+          gh release upload v1.0.0 release-assets/SHA256SUMS.txt --clobber
 
           release_json="$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/v1.0.0")"
           for expected in \
-            "Code Summarizer_1.0.0_x64-setup.exe" \
-            "Code Summarizer_1.0.0_x64_en-US.msi" \
+            "CodeSummarizer-1.0.0-windows-x64-setup.exe" \
+            "CodeSummarizer-1.0.0-windows-x64.msi" \
             "CodeSummarizer-1.0.0-windows-x64-portable.zip" \
             "SHA256SUMS.txt"; do
             jq -e --arg name "$expected" '.assets[] | select(.name == $name)' <<<"$release_json" >/dev/null
           done
+
+          while read -r hash name; do
+            jq -e --arg name "$name" --arg digest "sha256:$hash" \
+              '.assets[] | select(.name == $name and .digest == $digest)' <<<"$release_json" >/dev/null
+          done < release-assets/SHA256SUMS.txt
